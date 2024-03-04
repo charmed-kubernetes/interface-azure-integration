@@ -3,12 +3,12 @@ requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "ops.interface_gcp"
+name = "ops.interface_azure"
 version = "0.1.0"
 authors = [
   {name="Canonical Kubernetes", email="k8s-crew@lists.canonical.com"},
 ]
-description = "Charm library for installing and configuring gcp integration"
+description = "Charm library for installing and configuring azure integration"
 readme = "README.md"
 requires-python = ">=3.8"
 dependencies = [
@@ -21,8 +21,8 @@ classifiers = [
 ]
 
 [project.urls]
-"Homepage" = "https://github.com/charmed-kubernetes/interace-gcp-integration"
-"Bug Tracker" = "https://github.com/charmed-kubernetes/interace-gcp-integration/issues"
+"Homepage" = "https://github.com/charmed-kubernetes/interace-azure-integration"
+"Bug Tracker" = "https://github.com/charmed-kubernetes/interace-azure-integration/issues"
 
 [tool.setuptools.packages.find]
 include = ["ops.*"]

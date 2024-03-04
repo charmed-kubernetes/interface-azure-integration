@@ -261,7 +261,11 @@ class AzureIntegrationRequires(ops.Object):
             except json.decoder.JSONDecodeError:
                 return s
 
-        to_sha = {key: from_json(val) for key, val in self._to_publish.items()}
+        to_sha = {
+            key: from_json(val)
+            for key, val in self._to_publish.items()
+            if "requested" != key
+        }
         return sha256(json.dumps(to_sha, sort_keys=True).encode()).hexdigest()
 
     def _request(self, keyvals):
