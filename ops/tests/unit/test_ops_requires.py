@@ -14,9 +14,11 @@ import os
 
 
 class MyCharm(ops.CharmBase):
-    azure_meta = ops.RelationMeta(
-        ops.RelationRole.requires, "azure", {"interface": "azure-integration"}
-    )
+    azure_meta = """
+requires:
+    azure:
+        interface: azure-integration
+"""
 
     def __init__(self, framework: ops.Framework):
         super().__init__(framework)
@@ -33,11 +35,8 @@ def juju_enviro():
 
 @pytest.fixture(scope="function")
 def harness():
-    harness = ops.testing.Harness(MyCharm)
+    harness = ops.testing.Harness(MyCharm, meta=MyCharm.azure_meta)
     harness.framework.meta.name = "test"
-    harness.framework.meta.relations = {
-        MyCharm.azure_meta.relation_name: MyCharm.azure_meta
-    }
     harness.set_model_name("test/0")
     harness.begin_with_initial_hooks()
     yield harness
@@ -152,6 +151,8 @@ def test_request_simple(harness, method_name, args, sent_data):
         ("tenant_id", "ti"),
     ],
 )
-def test_received_data(harness, method_name, expected, integrator_data):
-    harness.add_relation("azure", "remote", unit_data=integrator_data)
+def test_received_data(
+    harness: ops.testing.Harness, method_name, expected, integrator_data
+):
+    harness.add_relation("azure", "remote/0", unit_data=integrator_data)
     assert getattr(harness.charm.azure, method_name) == expected
