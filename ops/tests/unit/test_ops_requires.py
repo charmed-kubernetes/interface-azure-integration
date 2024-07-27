@@ -151,6 +151,8 @@ def test_request_simple(harness, method_name, args, sent_data):
         ("tenant_id", "ti"),
     ],
 )
-def test_received_data(harness: ops.testing.Harness, method_name, expected, integrator_data):
+def test_received_data(
+    harness: ops.testing.Harness, method_name, expected, integrator_data
+):
     harness.add_relation("azure", "remote/0", unit_data=integrator_data)
     assert getattr(harness.charm.azure, method_name) == expected
