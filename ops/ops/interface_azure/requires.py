@@ -11,7 +11,7 @@ import logging
 import ops
 import os
 from functools import cached_property
-from typing import Mapping, Optional
+from typing import Any, Mapping, Optional
 from urllib.request import urlopen, Request
 
 
@@ -30,6 +30,14 @@ def _request(url):
     req = Request(url, headers=METADATA_HEADERS)
     with urlopen(req) as fd:
         return fd.read(READ_BLOCK_SIZE).decode("utf8").strip()
+
+
+def try_json(s: Optional[str]) -> Optional[Any]:
+    """Try to load string as json, return if not possible."""
+    try:
+        return json.loads(s)
+    except (json.decoder.JSONDecodeError, TypeError):
+        return s
 
 
 class AzureIntegrationRequires(ops.Object):
@@ -94,9 +102,13 @@ class AzureIntegrationRequires(ops.Object):
         ever be connected to a single Azure integration application with a
         single unit.
         """
+        data = {}
         if self.relation and self.relation.units:
-            return self.relation.data[list(self.relation.units)[0]]
-        return {}
+            for unit in self.relation.units:
+                data.update(self.relation.data[unit])
+        for key, val in data.items():
+            data[key] = try_json(val)
+        return data
 
     @property
     def _to_publish(self):
@@ -229,7 +241,7 @@ class AzureIntegrationRequires(ops.Object):
         Whether or not the request for this instance has been completed.
         """
         requested = self._to_publish.get("requested")
-        completed = json.loads(self._received.get("completed", "{}")).get(self.vm_id)
+        completed = self._received.get("completed", {}).get(self.vm_id)
         ready = bool(requested and requested == completed)
         if not requested:
             log.warning("Local end has yet to request integration")
